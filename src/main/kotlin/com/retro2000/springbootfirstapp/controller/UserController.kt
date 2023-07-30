@@ -7,19 +7,34 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/users")
 @Suppress(UNUSED)
 class UserController {
 
+    companion object {
+        const val USER_ID = "/{userId}"
+    }
+
     @Autowired
     private lateinit var userRepository: UserRepository
 
     @GetMapping
     @ResponseBody
-    fun getUsers(): MutableList<User> {
+    fun getUsers(): MutableIterable<User> {
         return userRepository.findAll()
+    }
+
+    @GetMapping(USER_ID)
+    @ResponseBody
+    fun getUserByIdOrElseThrow(@PathVariable userId: Long): User? {
+        return userRepository.findById(userId).orElseThrow {
+            ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "User with userId of value $userId was not found."
+            )
+        }
     }
 
     @PostMapping
@@ -35,7 +50,7 @@ class UserController {
     }
 
 
-    @PutMapping("/{userId}")
+    @PutMapping(USER_ID)
     @ResponseBody
     fun updateOrReplace(@PathVariable userId: Long, @RequestBody user: User): ResponseEntity<User> {
         return if (!userRepository.existsById(userId)) {
@@ -49,25 +64,33 @@ class UserController {
         }
     }
 
-    @DeleteMapping("/{userId}")
-    @ResponseBody
-    fun delete(@PathVariable userId: Long): ResponseEntity<User> {
+    @DeleteMapping(USER_ID)
+    fun delete(@PathVariable userId: Long): ResponseEntity<HashMap<String, Any>> {
         return if (!userRepository.existsById(userId)) {
             ResponseEntity.notFound().build()
         } else {
-            userRepository.deleteByUserId(userId)
+            userRepository.deleteById(userId)
             ResponseEntity.noContent().build()
         }
     }
 
-//    @PatchMapping("/{userId}")
-//    fun updateOrModifyUserNameById(@PathVariable userId: Long, @RequestParam userName: String): ResponseEntity<User> {
-//        return if (userRepository.existsById(userId)) {
-//            ResponseEntity.unprocessableEntity().build()
-//        } else {
-//            val user = userRepository.findById(userId).get()
-//            user.userName = userName
-//            ResponseEntity.ok(user)
-//        }
-//    }
+    @PatchMapping(USER_ID)
+    fun updateOrModifyUserNameById(
+        @PathVariable userId: Long, @RequestParam("userName") userName: String
+    ): ResponseEntity<HashMap<String, Any>> {
+        return if (!userRepository.existsById(userId)) {
+            ResponseEntity.unprocessableEntity().build()
+        } else {
+            val user = userRepository.findById(userId).get()
+            val oldUsername = user.userName
+            user.userName = userName
+            userRepository.save(user)
+            ResponseEntity.ok(
+                hashMapOf(
+                    Pair("changes", "userName changed from `$oldUsername` to `${user.userName}`"),
+                    Pair<String, Any>("user", user),
+                )
+            )
+        }
+    }
 }
