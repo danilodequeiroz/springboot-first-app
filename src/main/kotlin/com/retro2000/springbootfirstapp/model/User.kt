@@ -16,18 +16,18 @@ class User(
     @Column(nullable = false, unique = true)
     @field:NotNull
     @field:NotEmpty
-    @field:Length(min = 4, max = 16)
+    @field:Length(min = 4, max = 32)
     var userName: String = "",
 
     @Column(nullable = false)
     @field:NotNull
     @field:NotEmpty
-    @field:Length(min = 4, max = 16)
+    @field:Length(min = 4, max = 64)
     var firstName: String = "",
 
     @Column(nullable = false)
     @field:NotNull
     @field:NotEmpty
-    @field:Length(min = 4, max = 16)
+    @field:Length(min = 4, max = 64)
     var lastName: String = ""
 )
