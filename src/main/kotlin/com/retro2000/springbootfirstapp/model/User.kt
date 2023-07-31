@@ -1,7 +1,10 @@
 package com.retro2000.springbootfirstapp.model
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import lombok.Data
+import org.hibernate.validator.constraints.Length
 
 @Entity(name = "users")
 @Data
@@ -11,11 +14,20 @@ class User(
     var userId: Long = 0,
 
     @Column(nullable = false, unique = true)
+    @field:NotNull
+    @field:NotEmpty
+    @field:Length(min = 4, max = 16)
     var userName: String = "",
 
     @Column(nullable = false)
+    @field:NotNull
+    @field:NotEmpty
+    @field:Length(min = 4, max = 16)
     var firstName: String = "",
 
     @Column(nullable = false)
+    @field:NotNull
+    @field:NotEmpty
+    @field:Length(min = 4, max = 16)
     var lastName: String = ""
 )

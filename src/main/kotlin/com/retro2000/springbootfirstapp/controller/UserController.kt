@@ -1,8 +1,10 @@
 package com.retro2000.springbootfirstapp.controller
 
+import com.retro2000.springbootfirstapp.dto.UserDto
 import com.retro2000.springbootfirstapp.model.User
 import com.retro2000.springbootfirstapp.repository.UserRepository
 import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
+import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,13 +25,12 @@ class UserController {
 
     @GetMapping
     @ResponseBody
-    fun getUsers(): MutableIterable<User> {
-        return userRepository.findAll()
+    fun getUsers(): MutableIterable<UserDto> {
+        return UserDto.convertToUserDtoList(userRepository.findAll())
     }
 
     @GetMapping(USER_ID)
-    @ResponseBody
-    fun getUserByIdOrElseThrow(@PathVariable userId: Long): User? {
+    fun getUserByIdOrElseThrow(@PathVariable userId: Long): User {
         return userRepository.findById(userId).orElseThrow {
             ResponseStatusException(
                 HttpStatus.BAD_REQUEST, "User with userId of value $userId was not found."
@@ -38,9 +39,8 @@ class UserController {
     }
 
     @PostMapping
-    @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody user: User): ResponseEntity<User> {
+    fun create(@Valid @RequestBody user: User): ResponseEntity<User> {
         return if (userRepository.findByUserName(user.userName).isEmpty()) {
             userRepository.save(user)
             ResponseEntity.ok().build()
@@ -51,7 +51,6 @@ class UserController {
 
 
     @PutMapping(USER_ID)
-    @ResponseBody
     fun updateOrReplace(@PathVariable userId: Long, @RequestBody user: User): ResponseEntity<User> {
         return if (!userRepository.existsById(userId)) {
             ResponseEntity.notFound().build()
