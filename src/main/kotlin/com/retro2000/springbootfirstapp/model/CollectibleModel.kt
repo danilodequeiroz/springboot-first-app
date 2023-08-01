@@ -7,14 +7,16 @@ import jakarta.persistence.Id
 
 //@Entity
 //@Data
-class Price(
+class CollectibleModel(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var priceId: Long = 0,
+    var modelId: Long = 0,
 
     @Column(nullable = false)
-    var price: Long = 0,
+    var modelType: String = "", // Mini car, Action Figure, GameDisc, GameConsole
 
     @Column(nullable = false)
-    var currency: String = "",
+    var brand: String = "", // Sony, Microsoft, Hot Wheels, Matchbox, Funko
+
+
 )

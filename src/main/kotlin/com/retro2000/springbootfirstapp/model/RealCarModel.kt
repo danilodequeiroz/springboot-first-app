@@ -7,14 +7,15 @@ import jakarta.persistence.Id
 
 //@Entity
 //@Data
-class Price(
+class RealCarModel(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var priceId: Long = 0,
 
     @Column(nullable = false)
-    var price: Long = 0,
+    var name: String = "", // 911 GT3 RS
+
 
     @Column(nullable = false)
-    var currency: String = "",
+    var brand: String = "", // Porsche
 )

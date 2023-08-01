@@ -1,6 +1,7 @@
 package com.retro2000.springbootfirstapp.controller
 
 import com.retro2000.springbootfirstapp.dto.UserDto
+import com.retro2000.springbootfirstapp.dto.UserDto.Companion.convertToUser
 import com.retro2000.springbootfirstapp.model.User
 import com.retro2000.springbootfirstapp.repository.UserRepository
 import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
@@ -40,9 +41,9 @@ class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody user: User): ResponseEntity<User> {
-        return if (userRepository.findByUserName(user.userName).isEmpty()) {
-            userRepository.save(user)
+    fun create(@Valid @RequestBody userDto: UserDto): ResponseEntity<User> {
+        return if (userRepository.findByUserName(userDto.userName).isEmpty()) {
+            userRepository.save(convertToUser(userDto))
             ResponseEntity.ok().build()
         } else {
             ResponseEntity.unprocessableEntity().build()
