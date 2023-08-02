@@ -13,25 +13,24 @@ class Collectible(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var collectibleId: Long = 0,
 
-    @NotEmpty
-    @NotNull
+    @field:NotEmpty
+    @field:NotNull
     @Column(nullable = false)
     var brand: String = "",
 
-    @NotEmpty
-    @NotNull
-    @Column(nullable = false)
-    var modelId: String = "",
+//    @NotEmpty
+//    @NotNull
+//    @Column(nullable = false)
+//    var modelId: String = "",
 
-    @NotEmpty
-    @NotNull
+    @field:NotEmpty
+    @field:NotNull
     @Column(nullable = false)
     var scale: String = "1:64",
 
-    @NotEmpty
-    @NotNull
+    @field:NotNull
     @Column(nullable = false)
-    var acquiredDate: LocalDate,
+    var acquiredDate: LocalDate = LocalDate.EPOCH,
 
 //    @OneToOne(optional = false)
 //    @JoinColumn(name = "pricePaid", updatable = false)

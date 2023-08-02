@@ -1,8 +1,9 @@
 package com.retro2000.springbootfirstapp.controller
 
-import com.retro2000.springbootfirstapp.dto.UserDto
-import com.retro2000.springbootfirstapp.dto.UserDto.Companion.convertToUser
 import com.retro2000.springbootfirstapp.model.User
+import com.retro2000.springbootfirstapp.model.dto.UserDto
+import com.retro2000.springbootfirstapp.model.extensions.toUser
+import com.retro2000.springbootfirstapp.model.extensions.toUserDtoMutableList
 import com.retro2000.springbootfirstapp.repository.UserRepository
 import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
 import jakarta.validation.Valid
@@ -24,14 +25,25 @@ class UserController {
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    @GetMapping
-    @ResponseBody
-    fun getUsers(): MutableIterable<UserDto> {
-        return UserDto.convertToUserDtoList(userRepository.findAll())
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    fun create(@Valid @RequestBody userDto: UserDto): ResponseEntity<User> {
+        return if (userRepository.findByUserName(userDto.userName).isEmpty()) {
+            userRepository.save(userDto.toUser())
+            ResponseEntity.ok().build()
+        } else {
+            ResponseEntity.unprocessableEntity().build()
+        }
     }
 
-    @GetMapping(USER_ID)
-    fun getUserByIdOrElseThrow(@PathVariable userId: Long): User {
+    @GetMapping
+    @ResponseBody
+    fun getUsers(): MutableList<UserDto> {
+        return userRepository.findAll().toUserDtoMutableList()
+    }
+
+    //    @GetMapping(USER_ID)
+    fun findByIdOrElseThrow(@PathVariable userId: Long): User {
         return userRepository.findById(userId).orElseThrow {
             ResponseStatusException(
                 HttpStatus.BAD_REQUEST, "User with userId of value $userId was not found."
@@ -39,17 +51,15 @@ class UserController {
         }
     }
 
-    @PostMapping
+    @GetMapping(USER_ID)
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody userDto: UserDto): ResponseEntity<User> {
-        return if (userRepository.findByUserName(userDto.userName).isEmpty()) {
-            userRepository.save(convertToUser(userDto))
-            ResponseEntity.ok().build()
-        } else {
-            ResponseEntity.unprocessableEntity().build()
+    fun findById(@PathVariable userId: Long): ResponseEntity<UserDto> {
+        val userOptional = userRepository.findById(userId)
+        if (userOptional.isPresent) {
+            return ResponseEntity.ok(UserDto(userOptional.get()))
         }
+        return ResponseEntity.notFound().build()
     }
-
 
     @PutMapping(USER_ID)
     fun updateOrReplace(@PathVariable userId: Long, @RequestBody user: User): ResponseEntity<User> {

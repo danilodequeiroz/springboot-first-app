@@ -16,7 +16,5 @@ class CollectibleModel(
     var modelType: String = "", // Mini car, Action Figure, GameDisc, GameConsole
 
     @Column(nullable = false)
-    var brand: String = "", // Sony, Microsoft, Hot Wheels, Matchbox, Funko
-
-
+    var brand: String = "" // Sony, Microsoft, Hot Wheels, Matchbox, Funko
 )

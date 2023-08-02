@@ -1,7 +1,6 @@
-package com.retro2000.springbootfirstapp.dto
+package com.retro2000.springbootfirstapp.model.dto
 
 import com.retro2000.springbootfirstapp.model.User
-import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
 import jakarta.persistence.Column
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor
 import lombok.Data
 import lombok.NoArgsConstructor
 import org.hibernate.validator.constraints.Length
-import java.util.stream.Collectors
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,35 +37,14 @@ class UserDto(
     @field:NotEmpty
     @field:Length(min = 4, max = 64)
     var lastName: String = "",
+
+    var collectible: CollectibleDto? = null,
 ) {
     constructor(user: User) : this() {
         this.userId = user.userId
         this.userName = user.userName
         this.firstName = user.firstName
         this.lastName = user.lastName
-    }
-
-    companion object {
-        fun convertToUserDtoList(mutableList: MutableList<User>): MutableList<UserDto> {
-            return mutableList.map { UserDto(it) }.toMutableList()
-        }
-
-        fun convertToUser(user: UserDto): User {
-            return User(
-                userId = user.userId,
-                userName = user.userName,
-                firstName = user.firstName,
-                lastName = user.lastName,
-            )
-        }
-
-        @Suppress(UNUSED)
-        fun convertToUserDtoListJavaStream(users: List<User>): List<UserDto>? {
-            return users.stream().map { user: User ->
-                UserDto(
-                    user
-                )
-            }.collect(Collectors.toList())
-        }
+        user.collectible?.let { this.collectible = CollectibleDto(collectible = it) }
     }
 }
