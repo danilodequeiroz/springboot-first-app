@@ -3,6 +3,7 @@ package com.retro2000.springbootfirstapp.model.extensions
 import com.retro2000.springbootfirstapp.model.User
 import com.retro2000.springbootfirstapp.model.dto.UserDto
 import com.retro2000.springbootfirstapp.util.SuppressNames
+import org.springframework.data.domain.Page
 import java.util.stream.Collectors
 
 @Suppress(SuppressNames.UNUSED)
@@ -16,6 +17,10 @@ fun streamToUserDtoList(users: List<User>): List<UserDto> {
 
 fun MutableList<User>.toUserDtoMutableList(): MutableList<UserDto> {
     return this.map { UserDto(it) }.toMutableList()
+}
+
+fun Page<User>.toUserDtoPage(): Page<UserDto> {
+    return this.map { UserDto(it) }
 }
 
 fun UserDto.toUser(): User {
@@ -33,6 +38,7 @@ fun User.toUserDto(): UserDto {
         userName = this.userName,
         firstName = this.firstName,
         lastName = this.lastName,
+        collectible = this.collectible?.toCollectibleDto()
     )
 }
 

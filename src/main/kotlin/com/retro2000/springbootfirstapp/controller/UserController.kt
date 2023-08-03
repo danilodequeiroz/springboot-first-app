@@ -3,11 +3,16 @@ package com.retro2000.springbootfirstapp.controller
 import com.retro2000.springbootfirstapp.model.User
 import com.retro2000.springbootfirstapp.model.dto.UserDto
 import com.retro2000.springbootfirstapp.model.extensions.toUser
+import com.retro2000.springbootfirstapp.model.extensions.toUserDto
 import com.retro2000.springbootfirstapp.model.extensions.toUserDtoMutableList
+import com.retro2000.springbootfirstapp.model.extensions.toUserDtoPage
+import com.retro2000.springbootfirstapp.repository.CollectibleRepository
 import com.retro2000.springbootfirstapp.repository.UserRepository
 import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -25,6 +30,9 @@ class UserController {
     @Autowired
     private lateinit var userRepository: UserRepository
 
+    @Autowired
+    private lateinit var collectibleRepository: CollectibleRepository
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody userDto: UserDto): ResponseEntity<User> {
@@ -36,8 +44,16 @@ class UserController {
         }
     }
 
+    @GetMapping("paged")
+    fun getUsersPaged(
+        @RequestParam page: Int,
+        @RequestParam size: Int,
+    ): Page<UserDto> {
+        val users = userRepository.findAll(PageRequest.of(page, size))
+        return users.toUserDtoPage()
+    }
+
     @GetMapping
-    @ResponseBody
     fun getUsers(): MutableList<UserDto> {
         return userRepository.findAll().toUserDtoMutableList()
     }
@@ -102,5 +118,15 @@ class UserController {
                 )
             )
         }
+    }
+
+    @PatchMapping("$USER_ID/collectible")
+    fun updateOrModifyUserCollectible(
+        @PathVariable userId: Long, @RequestParam("collectibleId") collectibleId: Long
+    ): UserDto {
+        val user = userRepository.findById(userId).get()
+        user.collectible = collectibleRepository.findById(collectibleId).get()
+        userRepository.save(user)
+        return user.toUserDto()
     }
 }
