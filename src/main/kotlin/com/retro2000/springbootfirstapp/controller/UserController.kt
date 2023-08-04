@@ -11,8 +11,12 @@ import com.retro2000.springbootfirstapp.repository.UserRepository
 import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -45,9 +49,18 @@ class UserController {
     }
 
     @GetMapping("paged")
+    @Cacheable(value = ["getUsersPaged"])
     fun getUsersPaged(
+        @PageableDefault(sort = ["userId"], direction = Sort.Direction.DESC) pageable: Pageable
+    ): Page<UserDto> {
+        val users = userRepository.findAll(pageable)
+        return users.toUserDtoPage()
+    }
+
+    @GetMapping("legacy/paged")
+    fun getUsersPagedLegacy(
         @RequestParam page: Int,
-        @RequestParam size: Int,
+        @RequestParam size: Int
     ): Page<UserDto> {
         val users = userRepository.findAll(PageRequest.of(page, size))
         return users.toUserDtoPage()

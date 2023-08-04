@@ -22,13 +22,13 @@ class User(
     @Column(nullable = false)
     @field:NotNull
     @field:NotEmpty
-    @field:Length(min = 4, max = 64)
+    @field:Length(min = 3, max = 64)
     var firstName: String = "",
 
     @Column(nullable = false)
     @field:NotNull
     @field:NotEmpty
-    @field:Length(min = 4, max = 64)
+    @field:Length(min = 3, max = 64)
     var lastName: String = "",
 
     @ManyToOne
