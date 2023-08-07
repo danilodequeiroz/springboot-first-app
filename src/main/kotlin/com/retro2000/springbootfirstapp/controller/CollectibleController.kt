@@ -1,5 +1,6 @@
 package com.retro2000.springbootfirstapp.controller
 
+import com.retro2000.springbootfirstapp.controller.CollectibleController.Companion.COLLECTIBLES_PATH
 import com.retro2000.springbootfirstapp.model.Collectible
 import com.retro2000.springbootfirstapp.model.dto.CollectibleDto
 import com.retro2000.springbootfirstapp.model.extensions.toCollectible
@@ -12,9 +13,13 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/collectibles")
+@RequestMapping(COLLECTIBLES_PATH)
 @Suppress(UNUSED)
 class CollectibleController {
+
+    companion object {
+        const val COLLECTIBLES_PATH = "/collectibles"
+    }
 
     @Autowired
     private lateinit var collectibleRepository: CollectibleRepository

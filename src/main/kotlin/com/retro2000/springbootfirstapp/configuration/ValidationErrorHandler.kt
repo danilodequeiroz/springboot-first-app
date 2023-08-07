@@ -41,12 +41,13 @@ class ValidationErrorHandler {
     fun handleConstraintViolationException(exception: ConstraintViolationException): MutableList<GenericError> {
         val errors = mutableListOf<GenericError>()
         val fieldErrors: MutableSet<ConstraintViolation<*>> = exception.constraintViolations
-        fieldErrors.forEach { e ->
-            val error = when (e.propertyPath.firstOrNull()) {
-                null -> GenericError(e.propertyPath.first().name)
-                else -> KeyedByFieldError(e.propertyPath.firstOrNull()?.name!!, e.message)
-            }
-            errors.add(error)
+        fieldErrors.forEach { error ->
+            errors.add(
+                when (error.propertyPath.firstOrNull()) {
+                    null -> GenericError(error.propertyPath.first().name)
+                    else -> KeyedByFieldError(error.propertyPath.firstOrNull()?.name.toString(), error.message)
+                }
+            )
         }
         return errors
     }
