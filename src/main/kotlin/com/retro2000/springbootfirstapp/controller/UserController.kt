@@ -10,7 +10,12 @@ import com.retro2000.springbootfirstapp.repository.CollectibleRepository
 import com.retro2000.springbootfirstapp.repository.UserRepository
 import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
+import org.hibernate.validator.constraints.Length
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -22,12 +27,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
+
 @RestController
 @RequestMapping("/users")
 @Suppress(UNUSED)
 class UserController {
 
     companion object {
+        const val GET_USERS_PAGED = "getUsersPaged"
         const val USER_ID = "/{userId}"
     }
 
@@ -39,6 +46,7 @@ class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CacheEvict(value = [GET_USERS_PAGED], allEntries = true)
     fun create(@Valid @RequestBody userDto: UserDto): ResponseEntity<User> {
         return if (userRepository.findByUserName(userDto.userName).isEmpty()) {
             userRepository.save(userDto.toUser())
@@ -49,7 +57,7 @@ class UserController {
     }
 
     @GetMapping("paged")
-    @Cacheable(value = ["getUsersPaged"])
+    @Cacheable(value = [GET_USERS_PAGED])
     fun getUsersPaged(
         @PageableDefault(sort = ["userId"], direction = Sort.Direction.DESC) pageable: Pageable
     ): Page<UserDto> {
@@ -58,6 +66,7 @@ class UserController {
     }
 
     @GetMapping("legacy/paged")
+    @Cacheable(value = [GET_USERS_PAGED])
     fun getUsersPagedLegacy(
         @RequestParam page: Int,
         @RequestParam size: Int
@@ -91,6 +100,7 @@ class UserController {
     }
 
     @PutMapping(USER_ID)
+    @CacheEvict(value = [GET_USERS_PAGED], allEntries = true)
     fun updateOrReplace(@PathVariable userId: Long, @RequestBody user: User): ResponseEntity<User> {
         return if (!userRepository.existsById(userId)) {
             ResponseEntity.notFound().build()
@@ -104,6 +114,7 @@ class UserController {
     }
 
     @DeleteMapping(USER_ID)
+    @CacheEvict(value = [GET_USERS_PAGED], allEntries = true)
     fun delete(@PathVariable userId: Long): ResponseEntity<HashMap<String, Any>> {
         return if (!userRepository.existsById(userId)) {
             ResponseEntity.notFound().build()
@@ -114,8 +125,15 @@ class UserController {
     }
 
     @PatchMapping(USER_ID)
+    @CacheEvict(value = [GET_USERS_PAGED], allEntries = true)
     fun updateOrModifyUserNameById(
-        @PathVariable userId: Long, @RequestParam("userName") userName: String
+        @PathVariable userId: Long,
+        @Valid @RequestParam("userName")
+        @NotNull
+        @NotEmpty
+        @NotBlank
+        @Length(min = 4, max = 32)
+        userName: String
     ): ResponseEntity<HashMap<String, Any>> {
         return if (!userRepository.existsById(userId)) {
             ResponseEntity.unprocessableEntity().build()
@@ -134,6 +152,7 @@ class UserController {
     }
 
     @PatchMapping("$USER_ID/collectible")
+    @CacheEvict(value = [GET_USERS_PAGED], allEntries = true)
     fun updateOrModifyUserCollectible(
         @PathVariable userId: Long, @RequestParam("collectibleId") collectibleId: Long
     ): UserDto {

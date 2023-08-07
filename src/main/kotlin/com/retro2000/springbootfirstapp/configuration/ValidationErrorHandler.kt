@@ -1,6 +1,8 @@
 package com.retro2000.springbootfirstapp.configuration
 
 import com.retro2000.springbootfirstapp.util.SuppressNames.Companion.UNUSED
+import jakarta.validation.ConstraintViolation
+import jakarta.validation.ConstraintViolationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
@@ -20,15 +22,30 @@ class ValidationErrorHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handle(exception: MethodArgumentNotValidException): MutableList<InvalidFields> {
-        val errors = mutableListOf<InvalidFields>()
+    fun handleMethodArgumentNotValidException(exception: MethodArgumentNotValidException): MutableList<KeyedByFieldError> {
+        val errors = mutableListOf<KeyedByFieldError>()
         val fieldErrors: MutableList<FieldError> = exception.bindingResult.fieldErrors
         fieldErrors.forEach { e ->
-            val error = InvalidFields(
+            val error = KeyedByFieldError(
                 e.field, messageSource.getMessage(
                     e, LocaleContextHolder.getLocale()
                 )
             )
+            errors.add(error)
+        }
+        return errors
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleConstraintViolationException(exception: ConstraintViolationException): MutableList<GenericError> {
+        val errors = mutableListOf<GenericError>()
+        val fieldErrors: MutableSet<ConstraintViolation<*>> = exception.constraintViolations
+        fieldErrors.forEach { e ->
+            val error = when (e.propertyPath.firstOrNull()) {
+                null -> GenericError(e.propertyPath.first().name)
+                else -> KeyedByFieldError(e.propertyPath.firstOrNull()?.name!!, e.message)
+            }
             errors.add(error)
         }
         return errors

@@ -1,6 +1,7 @@
 package com.retro2000.springbootfirstapp.model
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import lombok.Data
@@ -16,18 +17,21 @@ class User(
     @Column(nullable = false, unique = true)
     @field:NotNull
     @field:NotEmpty
+    @field:NotBlank
     @field:Length(min = 4, max = 32)
     var userName: String = "",
 
     @Column(nullable = false)
     @field:NotNull
     @field:NotEmpty
+    @field:NotBlank
     @field:Length(min = 3, max = 64)
     var firstName: String = "",
 
     @Column(nullable = false)
     @field:NotNull
     @field:NotEmpty
+    @field:NotBlank
     @field:Length(min = 3, max = 64)
     var lastName: String = "",
 

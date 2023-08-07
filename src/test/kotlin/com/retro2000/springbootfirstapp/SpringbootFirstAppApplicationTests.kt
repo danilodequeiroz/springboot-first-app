@@ -1,6 +1,6 @@
 package com.retro2000.springbootfirstapp
 
-import com.retro2000.springbootfirstapp.configuration.InvalidFields
+import com.retro2000.springbootfirstapp.configuration.KeyedByFieldError
 import com.retro2000.springbootfirstapp.model.*
 import com.retro2000.springbootfirstapp.model.extensions.toCollectibleDto
 import com.retro2000.springbootfirstapp.model.extensions.toUserDto
@@ -85,7 +85,7 @@ class SpringbootFirstAppApplicationTests {
 
     @Test
     fun createInvalidFields() {
-        val invalidFields = InvalidFields(
+        val invalidFields = KeyedByFieldError(
             field = "userName",
             error = "length must be between 4 and 64",
         )

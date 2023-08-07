@@ -7,7 +7,14 @@ import lombok.NoArgsConstructor
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-class InvalidFields(
+data class KeyedByFieldError(
     var field: String = "",
-    var error: String = "",
+    override var error: String = "",
+) : GenericError()
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+open class GenericError(
+    open var error: String = "",
 )
