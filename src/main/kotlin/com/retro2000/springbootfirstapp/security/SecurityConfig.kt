@@ -18,7 +18,9 @@ class SecurityConfig {
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http.authorizeHttpRequests {
-            it.requestMatchers(HttpMethod.GET, COLLECTIBLES_PATH).permitAll()
+            it.requestMatchers(
+                HttpMethod.GET, COLLECTIBLES_PATH
+            ).permitAll()
         }.build()
     }
 }
